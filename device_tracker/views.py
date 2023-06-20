@@ -98,7 +98,7 @@ def employeeAll(request):
 @permission_classes([IsAuthenticated])
 def deviceAll(request):
         if request.method=="GET":
-            devices=Device.objects.filter(company=request.user.company)
+            devices=Device.objects.filter(company=request.user.company,availability=True)
             
             device_json=EmployeeSerializer(devices,many=True)
             return Response(device_json.data )

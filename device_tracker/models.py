@@ -13,6 +13,7 @@ class Employee(models.Model):
 class Device(models.Model):
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     name = models.CharField(max_length=255)
+    availability=models.BooleanField(default=True)
 
 class DeviceLog(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
