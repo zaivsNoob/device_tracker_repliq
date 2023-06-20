@@ -17,8 +17,8 @@ class Device(models.Model):
 class DeviceLog(models.Model):
     device = models.ForeignKey(Device, on_delete=models.CASCADE)
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
-    checkout_date = models.DateTimeField()
-    return_date = models.DateTimeField()
+    checkout_date = models.DateTimeField(blank=True)
+    return_date = models.DateTimeField(blank=True)
     checkout_condition = models.TextField()
     return_condition = models.TextField()
 

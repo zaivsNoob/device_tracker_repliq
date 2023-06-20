@@ -93,5 +93,27 @@ def employeeAll(request):
             else:
                 return Response({"error":serializer.errors})
     
-
+@api_view(['POST','GET'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def deviceAll(request):
+        if request.method=="GET":
+            devices=Device.objects.filter(company=request.user.company)
+            
+            device_json=EmployeeSerializer(devices,many=True)
+            return Response(device_json.data )
     
+        if request.method=="POST":
+            name=request.data.get("name")
+            company=request.user.company.id
+            data={'company':company,'name':name}
+            serializer=DeviceSerializer(data=data)
+            print(serializer.initial_data)
+
+            if serializer.is_valid():
+                serializer.save()
+                return Response({'msg':"successfully created"},status.HTTP_201_CREATED)
+            else:
+                return Response({"error":serializer.errors})
+    
+

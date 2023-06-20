@@ -6,5 +6,6 @@ urlpatterns = [
     path('logout/',logoutView),
     path('test/',test),
     path('employee/',employeeAll),
+    path('device/',deviceAll),
 
 ]
