@@ -5,6 +5,8 @@ from .models import *
 from .serializers import *
 
 from django.contrib.auth import authenticate
+from django.http import HttpResponse
+from datetime import datetime
 
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
@@ -14,6 +16,7 @@ from rest_framework import status
 
 # Create your views here.
 
+# this is where registration hits.you write user password and company name as values
 @api_view(['POST'])
 def register_user(request):
     username = request.data.get('username')
@@ -51,6 +54,7 @@ def loginView(request):
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated]) 
+
 def logoutView(request):
    
     token = Token.objects.get(user=request.user)
@@ -59,17 +63,7 @@ def logoutView(request):
     token.delete()
     return Response({'message': 'Logged out successfully'})  
 
-
-
-
-@api_view(['GET'])
-@authentication_classes([TokenAuthentication])
-@permission_classes([IsAuthenticated]) 
-def test(request):
-   return Response("Authenticated endpoint")    
-
-
-
+#hit this endpoint to get all employees or add an employeee
 @api_view(['POST','GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -93,6 +87,8 @@ def employeeAll(request):
             else:
                 return Response({"error":serializer.errors})
     
+
+#hit this endpoint to get all devices or add an device for the specific company
 @api_view(['POST','GET'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
@@ -115,5 +111,40 @@ def deviceAll(request):
                 return Response({'msg':"successfully created"},status.HTTP_201_CREATED)
             else:
                 return Response({"error":serializer.errors})
+
+
+#when a device is checkout this will be saved as the device log 
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def deviceCheckout(request,empId,devId):
+    
+    device=Device.objects.get(id=devId)
+    employee=Employee.objects.get(id=empId)
+    checkout_condition=request.data.get("condition")
+    
+    if device.availability==True:
+
+        device_log=DeviceLog.objects.create(device=device,employee=employee,checkout_date=datetime.now(),checkout_condition=checkout_condition )
+        device.availability=False
+        device.save()
+        return Response("Ok",status.HTTP_201_CREATED)
+    else:
+        return Response("Device not available")
+
+
+
+#when a device is return this will be saved as the device log 
+@api_view(['POST'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def deviceReturn(request,logId):
+    device_log=DeviceLog.objects.get(id=logId)
+    device_log.device.availability=True
+    device_log.return_date=datetime.now()
+    device_log.return_condition=request.data.get("condition")
+
+    device_log.save()
     
 
+    return Response("Ok",status.HTTP_201_CREATED)
